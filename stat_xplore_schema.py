@@ -12,7 +12,7 @@ schema_headers = {'APIKey':apikey}
 
 
 
-def get_full_schema(schema_headers, url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema', types_to_include = ["FOLDER","DATABASE","MEASURE","FIELD"]):
+def get_full_schema(schema_headers, url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema', types_to_include = ["FOLDER","DATABASE","MEASURE","FIELD"], check_cache = False, schema_filename = '.\schema\schema.csv'):
     '''Get the schema information of all elements of the Stat-Xplore schema but sratting at the root 
     folder and iterating through the schema tree.
 
@@ -39,7 +39,7 @@ def get_full_schema(schema_headers, url = 'https://stat-xplore.dwp.gov.uk/webapi
     still_to_map = df_full_schema
     while len(still_to_map) >0:
 
-        new_schema = get_lower_tier_schema_from_upper_tier_schema(still_to_map, schema_headers)
+        new_schema = get_lower_tier_schema_from_upper_tier_schema(still_to_map, schema_headers, check_cache, cache_filename = schema_filename)
 
         # Only get children schemas desired types in the resulting schema. 
         # Eg exclude value sets such as all geographies (this can take a while to get)
@@ -47,17 +47,25 @@ def get_full_schema(schema_headers, url = 'https://stat-xplore.dwp.gov.uk/webapi
 
         df_full_schema = pd.concat([df_full_schema, new_schema], join = 'outer')
 
+        # Save the schema as we go
+        df_full_schema.to_csv(schema_filename, index=False)
+
     return df_full_schema
 
         
 
-def get_lower_tier_schema_from_upper_tier_schema(df_parent_schema, schema_headers):
+def get_lower_tier_schema_from_upper_tier_schema(df_parent_schema, schema_headers, check_cache = False, cache_filename = '.\schema\schema.csv'):
     '''Function to loop through each of the parent elements of the upper tier schema and get the schema
     of the children of each one. Children schemas are combined together and returned.
 
     Args:
         df_parent_schema (pandas DataFrame): The parent schema of teh children schemas to return
         schema_headers (dict): The headers to use in the html request to the stat-xplore API.
+
+    Kwargs:
+        check_cache (bool): Default False. Check local directory for schema details.
+        cache_filename (str): Default '.\schema\schema.csv'. The filename of the cached schema details 
+                                to check for.
     '''
     # Get teh urls of each of the parent items
     parent_locations = df_parent_schema['location'].unique()
@@ -67,7 +75,7 @@ def get_lower_tier_schema_from_upper_tier_schema(df_parent_schema, schema_header
 
     # Iterate over parent items and get children schema
     for location in parent_locations:
-        children_schema_result = get_children_schema_of_url(location, schema_headers)
+        children_schema_result = get_children_schema_of_url(location, schema_headers, check_cache, cache_filename)
         if children_schema_result['success'] == False:
             print('Faield to get children schema for location {}'.format(location))
             continue
@@ -94,20 +102,21 @@ def get_children_schema_of_url(url, schema_headers, check_cache = False, cache_f
 
     output = {'success':False, 'schema':None, 'from_cache':False}
 
-    if check_cache == True:
-        # Check for saved schema
-        if os.path.exists(cache_filename) == True:
-            try:
-                df_full_schema = pd.read_csv(cache_filename)
-                parent_id = df_full_schema.loc[ df_full_schema['location'] == url, 'id'].values()[0]
-                df_schema = df_full_schema.loc[df_full_schema['parent_id'] == parent_id]
-                return {'success':True,'schema':df_schema, 'from_cache':True}
-            except Exception as err:
-                print(err)
-                print('Unable to load cached schema. Requesting from API instead.')
-                return output
+    # Check for saved schema
+    if (check_cache == True) & (os.path.exists(cache_filename) == True):
+
+        try:
+            df_full_schema = pd.read_csv(cache_filename)
+            parent_id = df_full_schema.loc[ df_full_schema['location'] == url, 'id'].values[0]
+            df_schema = df_full_schema.loc[df_full_schema['parent_id'] == parent_id]
+            assert len(df_schema) != 0
+
+            return {'success':True,'schema':df_schema, 'from_cache':True}
+        except Exception as err:
+            print(err)
+            print('Unable to load cached schema. Requesting from API instead.')
+            df_schema = pd.DataFrame()
     else:
-        df_full_schema = pd.DataFrame()
         df_schema = pd.DataFrame()
 
 

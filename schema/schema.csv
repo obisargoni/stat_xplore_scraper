@@ -1,0 +1,57 @@
+id,label,location,parent_id,type
+str:folder:root,Stat-Xplore,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Aroot,,FOLDER
+str:folder:faa,Attendance Allowance,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afaa,str:folder:root,FOLDER
+str:folder:fbc,Benefit Cap,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afbc,str:folder:root,FOLDER
+str:folder:fbb,Bereavement Benefits,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afbb,str:folder:root,FOLDER
+str:folder:fca,Carers Allowance,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afca,str:folder:root,FOLDER
+str:folder:fdla,Disability Living Allowance,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afdla,str:folder:root,FOLDER
+str:folder:fesa,Employment and Support Allowance,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afesa,str:folder:root,FOLDER
+str:folder:ffema,Fraud and Error in the Benefit System,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Affema,str:folder:root,FOLDER
+str:folder:fhb,Housing Benefit,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afhb,str:folder:root,FOLDER
+str:folder:fNINO,NINO Registrations,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3AfNINO,str:folder:root,FOLDER
+str:folder:fpc,Pension Credit,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afpc,str:folder:root,FOLDER
+str:folder:fpip,Personal Independence Payment,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afpip,str:folder:root,FOLDER
+str:folder:fsanc,Sanction Decisions,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afsanc,str:folder:root,FOLDER
+str:folder:fsp,State Pension,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afsp,str:folder:root,FOLDER
+str:folder:fuc,Universal Credit,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afuc,str:folder:root,FOLDER
+str:folder:fwb,Widow's Benefit,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afwb,str:folder:root,FOLDER
+str:folder:fwp,Work Programme,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Afolder%3Afwp,str:folder:root,FOLDER
+str:database:AA_In_Payment,AA Cases In Payment,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AAA_In_Payment,str:folder:faa,DATABASE
+str:database:AA_Entitled,AA Entitled,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AAA_Entitled,str:folder:faa,DATABASE
+str:database:Benefit_Cap_Cumulative,Cumulative Caseload,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3ABenefit_Cap_Cumulative,str:folder:fbc,DATABASE
+str:database:Benefit_Cap_Monthly,Point in Time Caseload,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3ABenefit_Cap_Monthly,str:folder:fbc,DATABASE
+str:database:BB,Bereavement Benefits caseload,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3ABB,str:folder:fbb,DATABASE
+str:database:CA_In_Payment,CA Cases In Payment,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3ACA_In_Payment,str:folder:fca,DATABASE
+str:database:CA_Entitled,CA Entitled,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3ACA_Entitled,str:folder:fca,DATABASE
+str:database:DLA_In_Payment,DLA Cases In Payment,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3ADLA_In_Payment,str:folder:fdla,DATABASE
+str:database:DLA_Entitled,DLA Entitled,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3ADLA_Entitled,str:folder:fdla,DATABASE
+str:database:ESA_Caseload,ESA Cumulative Caseload,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AESA_Caseload,str:folder:fesa,DATABASE
+str:database:FEMA_Over,Over Payments,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AFEMA_Over,str:folder:ffema,DATABASE
+str:database:FEMA_Over_Per,Percentage of Expenditure Overpaid,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AFEMA_Over_Per,str:folder:ffema,DATABASE
+str:database:FEMA_Under_Per,Percentage of Expenditure Underpaid,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AFEMA_Under_Per,str:folder:ffema,DATABASE
+str:database:FEMA_Under,Under Payments,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AFEMA_Under,str:folder:ffema,DATABASE
+str:database:hb_full,Housing Benefit claimants,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3Ahb_full,str:folder:fhb,DATABASE
+str:database:NINO,NINO Registrations To Adult Overseas Nationals Entering The UK,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3ANINO,str:folder:fNINO,DATABASE
+str:database:PC,Pension Credit caseload,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3APC,str:folder:fpc,DATABASE
+str:database:PIP_Monthly,PIP Claims in Payment,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3APIP_Monthly,str:folder:fpip,DATABASE
+str:database:PIP_Clearances,PIP Clearances,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3APIP_Clearances,str:folder:fpip,DATABASE
+str:database:PIP_Registrations,PIP Registrations,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3APIP_Registrations,str:folder:fpip,DATABASE
+str:database:ESA_sanc_dec,ESA Sanction Decisions – all decisions made,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AESA_sanc_dec,str:folder:fsanc,DATABASE
+str:database:ESA_sanc_ind,ESA Sanction Decisions – decisions on individuals,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AESA_sanc_ind,str:folder:fsanc,DATABASE
+str:database:IS_sanc_dec,IS Sanctions Decisions - all decisions made,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AIS_sanc_dec,str:folder:fsanc,DATABASE
+str:database:IS_sanc_ind,IS Sanctions Decisions - decisions on individuals,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AIS_sanc_ind,str:folder:fsanc,DATABASE
+str:database:JSA_sanc_dec,JSA Sanction Decisions – all decisions made,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AJSA_sanc_dec,str:folder:fsanc,DATABASE
+str:database:JSA_sanc_ind,JSA Sanction Decisions – decisions on individuals,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AJSA_sanc_ind,str:folder:fsanc,DATABASE
+str:database:UC_sanc_dec,UC Sanctions Decisions - all decisions made,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AUC_sanc_dec,str:folder:fsanc,DATABASE
+str:database:UC_sanc_ind,UC Sanctions Decisions - decisions on individuals,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AUC_sanc_ind,str:folder:fsanc,DATABASE
+str:database:SP,State Pension caseload,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3ASP,str:folder:fsp,DATABASE
+str:database:UC_Claims,Claims made to Universal Credit,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AUC_Claims,str:folder:fuc,DATABASE
+str:database:UC_Households,Households on Universal Credit,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AUC_Households,str:folder:fuc,DATABASE
+str:database:UC_Monthly,People on Universal Credit,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AUC_Monthly,str:folder:fuc,DATABASE
+str:database:UC_Starts,Starts to Universal Credit,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AUC_Starts,str:folder:fuc,DATABASE
+str:database:WB,Widow's Benefit caseload,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AWB,str:folder:fwb,DATABASE
+str:database:WP_Attachments,Work Programme Attachments,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AWP_Attachments,str:folder:fwp,DATABASE
+str:database:WP_Job_Outcomes,Work Programme Job Outcomes,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AWP_Job_Outcomes,str:folder:fwp,DATABASE
+str:database:WP_Referrals,Work Programme Referrals,http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AWP_Referrals,str:folder:fwp,DATABASE
+str:database:WP_Sustainment,Work Programme Sustainment Payments (all payments),http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AWP_Sustainment,str:folder:fwp,DATABASE
+str:database:WP_Sustainment_Ind,Work Programme Sustainment Payments (individuals),http://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema/str%3Adatabase%3AWP_Sustainment_Ind,str:folder:fwp,DATABASE
