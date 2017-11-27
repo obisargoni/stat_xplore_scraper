@@ -9,22 +9,7 @@ schema_url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema'
 apikey = '65794a30655841694f694a4b563151694c434a68624763694f694a49557a49314e694a392e65794a7063334d694f694a7a644849756333526c6247786863694973496e4e3159694936496d39696153357a59584a6e623235705147396a63326b7559323875645773694c434a70595851694f6a45304f544d334e4449784e7a6773496d46315a434936496e4e30636935765a47456966512e4e666c776177773552754a76717a6a4a366f2d37344a4e745231412d66412d7679772d68394f427031576f'
 schema_headers = {'APIKey':apikey}
 
-def request_schema(url, schema_headers):
-    '''Send request for schema to API. Check request was successful.
 
-    Args:
-        url (str): The url of the request.
-        schema_headers (dict): The headers of the request.
-    '''
-    schema_response = requests.get(url, headers = schema_headers)
-
-    # Check that request was successful. If not print message and exit.
-    if schema_response.raise_for_status() is not None:
-        print("Unsuccessful request to url:{}\nCheck url and API key.".format(url))
-        print("Response status:\n{}".format(schema_response.raise_for_status()))
-        return {'success':False, 'response':None}
-    else:
-        return {'success':True, 'response':schema_response}
 
 
 def get_full_schema(schema_headers, url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema', types_to_include = ["FOLDER","DATABASE","MEASURE","FIELD"]):
@@ -143,3 +128,20 @@ def get_children_schema_of_url(url, schema_headers, check_cache = False, cache_f
         df_schema['parent_id'] = schema_response_json['id']
 
         return {'success':True,'schema':df_schema, 'from_cache':False}
+
+def request_schema(url, schema_headers):
+    '''Send request for schema to API. Check request was successful.
+
+    Args:
+        url (str): The url of the request.
+        schema_headers (dict): The headers of the request.
+    '''
+    schema_response = requests.get(url, headers = schema_headers)
+
+    # Check that request was successful. If not print message and exit.
+    if schema_response.raise_for_status() is not None:
+        print("Unsuccessful request to url:{}\nCheck url and API key.".format(url))
+        print("Response status:\n{}".format(schema_response.raise_for_status()))
+        return {'success':False, 'response':None}
+    else:
+        return {'success':True, 'response':schema_response}
