@@ -154,3 +154,71 @@ def request_schema(url, schema_headers):
         return {'success':False, 'response':None}
     else:
         return {'success':True, 'response':schema_response}
+
+
+# Functions for getting recodes for a database item
+def geography_recodes_for_geog_folder_geog_level(schema_headers, database_label, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority', df_schema = None, check_cache = False, schema_filename = '.\schema\schema.csv'):
+    '''Get the geography recodes (geographic codes with additional formatting specifying which databse they refer to)
+    for a given database (for example 'CA_In_Payment' ). Recodes can be used to request data for specific geographies, eg 
+    all local authorities.
+
+    Args:
+        schema_headers (dict): The headers of the request.
+        database_label (str): The database label to get recode for
+
+    Kwargs:
+        df_schema (pandas DataFrame, None): Default None. The schema. If None, the required schema elements are erquested from the API
+        geog_folder_label (str): Default 'Geography (residence-based)'. The geography folder label containing the geography recodes
+        geog_field_label (str): Default 'National - Regional - LA - OAs'. The geography field label, eg 'National - Regional - LA - OAs'
+        geog_level_label (str): Defaukt 'Local Authority'. The geographic level label to get recodes for (eg lcoal authority or LSOA)
+
+    Returns:
+        dict: key is str id of the geography field. Value is list of str geography field values
+    '''
+
+    # Check if schema was passed in. If not get schema
+    if df_schema is None:
+        df_schema = get_full_schema(schema_headers,check_cache = check_cache, schema_filename = schema_filename)
+
+    database_id = df_schema.loc[ df_schema['label'] == database_label, 'id'].values[0]
+
+    # Get the id of the geog folder requested
+    geog_folder_id = df_schema.loc[(df_schema['parent_id'] == database_id) & (df_schema['label'] == geog_folder_label), 'id'].values[0]
+
+    # Get id of the geography recodes folder
+    geog_field_id = df_schema.loc[ (df_schema['parent_id'] == geog_folder_id) & (df_schema['label'] == geog_field_label), 'id'].values[0]
+
+    # Get location of the value set of geography recodes
+    # here we sectect which geographic level we want (eg, OA, LA, LSOA, etc), and the according valueset location is returned.
+    geog_field_valueset_loc = df_schema.loc[ (df_schema['parent_id'] == geog_field_id) & (df_schema['label'] == geog_level_label), 'location'].values[0]
+
+
+    # Call function to get recodes given a valueset location
+    geog_recodes = get_recodes_from_valueset_location(schema_headers, geog_field_valueset_loc)
+
+    return {geog_field_id:geog_recodes}
+
+
+def get_recodes_from_valueset_location(schema_headers, valueset_loc):
+    '''Query the API schema to get the set of recodes that are located within the input valueset
+
+    Args:
+        schema_headers (dict): The headers of the request.
+        valueset_loc (str): Localtion of the valueset to return recodes from
+
+    Returns:
+        recodes (dict): recodes dictionary with key being the valueset id of the recodes and the item 
+                        being a list of recodes
+    '''
+
+
+    valueset_response = request_schema(valueset_loc, schema_headers)
+
+    if valueset_response['success'] == False:
+        return None
+
+    valueset_json = valueset_response['response'].json()
+
+    df_valueset = pd.DataFrame(valueset_json['children'])
+
+    return df_valueset['id'].tolist()
