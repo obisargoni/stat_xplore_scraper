@@ -12,7 +12,7 @@ schema_headers = {'APIKey':apikey}
 
 
 
-def get_full_schema(schema_headers, url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema', types_to_include = ["FOLDER","DATABASE","MEASURE","FIELD"], check_cache = False, schema_filename = '.\schema\schema.csv'):
+def get_full_schema(schema_headers, url = schema_url, types_to_include = ["FOLDER","DATABASE","MEASURE","FIELD"], check_cache = False, schema_filename = '.\schema\schema.csv'):
     '''Get the schema information of all elements of the Stat-Xplore schema but sratting at the root 
     folder and iterating through the schema tree.
 
