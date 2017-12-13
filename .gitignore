@@ -100,3 +100,6 @@ ENV/
 # mypy
 .mypy_cache/
 schema/schema.csv
+
+/schema/schema.csv
+/schema/schema.csv

@@ -6,7 +6,7 @@ import os
 
 schema_url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema'
 
-apikey = '65794a30655841694f694a4b563151694c434a68624763694f694a49557a49314e694a392e65794a7063334d694f694a7a644849756333526c6247786863694973496e4e3159694936496d39696153357a59584a6e623235705147396a63326b7559323875645773694c434a70595851694f6a45304f544d334e4449784e7a6773496d46315a434936496e4e30636935765a47456966512e4e666c776177773552754a76717a6a4a366f2d37344a4e745231412d66412d7679772d68394f427031576f'
+apikey = '65794a30655841694f694a4b563151694c434a68624763694f694a49557a49314e694a392e65794a7063334d694f694a7a644849756333526c6247786863694973496e4e3159694936496d39696153357a59584a6e623235705147396a63326b7559323875645773694c434a70595851694f6a45314d544d784f5441334e445573496d46315a434936496e4e30636935765a47456966512e2d4e4470356c64733266494f6d35584b4b7370394b48334f2d775542446f455248575f36467437477a3034'
 schema_headers = {'APIKey':apikey}
 
 
@@ -157,14 +157,14 @@ def request_schema(url, schema_headers):
 
 
 # Functions for getting recodes for a database item
-def geography_recodes_for_geog_folder_geog_level(schema_headers, database_label, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority', df_schema = None, check_cache = False, schema_filename = '.\schema\schema.csv'):
+def geography_recodes_for_geog_folder_geog_level(schema_headers, database_id, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority', df_schema = None, check_cache = False, schema_filename = '.\schema\schema.csv'):
     '''Get the geography recodes (geographic codes with additional formatting specifying which databse they refer to)
     for a given database (for example 'CA_In_Payment' ). Recodes can be used to request data for specific geographies, eg 
     all local authorities.
 
     Args:
         schema_headers (dict): The headers of the request.
-        database_label (str): The database label to get recode for
+        database_id (str): The database id to get recode for
 
     Kwargs:
         df_schema (pandas DataFrame, None): Default None. The schema. If None, the required schema elements are erquested from the API
@@ -179,8 +179,6 @@ def geography_recodes_for_geog_folder_geog_level(schema_headers, database_label,
     # Check if schema was passed in. If not get schema
     if df_schema is None:
         df_schema = get_full_schema(schema_headers,check_cache = check_cache, schema_filename = schema_filename)
-
-    database_id = df_schema.loc[ df_schema['label'] == database_label, 'id'].values[0]
 
     # Get the id of the geog folder requested
     geog_folder_id = df_schema.loc[(df_schema['parent_id'] == database_id) & (df_schema['label'] == geog_folder_label), 'id'].values[0]
@@ -222,3 +220,24 @@ def get_recodes_from_valueset_location(schema_headers, valueset_loc):
     df_valueset = pd.DataFrame(valueset_json['children'])
 
     return df_valueset['id'].tolist()
+
+def get_database_fields(schema_headers, database_id, df_schema = None, check_cache = False, cache_filename = '.\schema\schema.csv'):
+    '''Given a database ID, return the ids of the fields within that database
+    
+    Args:
+        schema_headers (dict): The headers of the request.
+        database_id (str): The ID of the database to get fields for
+
+    Kwargs:
+        df_schema (pandas DataFrame, None): Default None. The stat-xplore schema
+
+    Returns:
+        dict: The field lbels as keys, the field ids as values
+    '''
+
+    if df_schema is None:
+        df_schema = get_full_schema(schema_headers,check_cache = check_cache, schema_filename = cache_filename)
+
+    fields_dict = df_schema.loc[ (df_schema['parent_id'] == 'str:database:AA_In_Payment') & (df_schema['type'] == 'FIELD'), ['id', 'label']].set_index('label').to_dict()
+
+    return fields_dict['id']
