@@ -13,6 +13,7 @@ schema_headers = {'APIKey':APIKey}
 
 
 def build_request_body(table_headers, schema_headers, measure_id, field_ids = None, df_schema = None):
+def build_request_body(table_headers, schema_headers, measure_id, field_ids = None, df_schema = None, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority'):
 
     # Get database id
     database_id = 'str:database:' + measure_id.split(':')[-2]
@@ -21,7 +22,7 @@ def build_request_body(table_headers, schema_headers, measure_id, field_ids = No
 
     measures_values = get_measures_request_body(measure_id)
 
-    recodes_values = get_geography_recodes_request_body(schema_headers, database_id, df_schema = df_schema)
+    recodes_values = get_geography_recodes_request_body(schema_headers, database_id, geog_folder_label = geog_folder_label, geog_field_label= geog_field_label, geog_level_label = geog_level_label, df_schema = df_schema)
 
     dimensions_values = get_dimensions_body(schema_headers, database_id, field_ids, df_schema = df_schema)
 
