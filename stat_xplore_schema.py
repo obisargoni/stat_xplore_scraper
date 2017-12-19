@@ -136,7 +136,7 @@ def get_children_schema_of_url(url, schema_headers, check_cache = False, cache_f
         df_schema = pd.DataFrame(schema_response_json['children'])
         df_schema['parent_id'] = schema_response_json['id']
 
-        return {'success':True,'schema':df_schema, 'from_cache':False}
+    return {'success':True,'schema':df_schema, 'from_cache':False}
 
 def request_schema(url, schema_headers):
     '''Send request for schema to API. Check request was successful.
