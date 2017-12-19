@@ -118,9 +118,9 @@ def format_recodes_for_api(recodes_dict, include_total = True):
     map_values = [ [i] for i in field_values ]
 
     if include_total == False:
-        total_value = 'false'
+        total_value = False
     else:
-        total_value = 'true'
+        total_value = True
     # Combine into single dict
     recodes_data = {field_id:{
                                 'map': map_values,
