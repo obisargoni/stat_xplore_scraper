@@ -238,6 +238,6 @@ def get_database_fields(schema_headers, database_id, df_schema = None, check_cac
     if df_schema is None:
         df_schema = get_full_schema(schema_headers,check_cache = check_cache, schema_filename = cache_filename)
 
-    fields_dict = df_schema.loc[ (df_schema['parent_id'] == 'str:database:AA_In_Payment') & (df_schema['type'] == 'FIELD'), ['id', 'label']].set_index('label').to_dict()
+    fields_dict = df_schema.loc[ (df_schema['parent_id'] == database_id) & (df_schema['type'] == 'FIELD'), ['id', 'label']].set_index('label').to_dict()
 
     return fields_dict['id']
