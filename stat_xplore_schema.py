@@ -6,8 +6,8 @@ import os
 
 schema_url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema'
 
-apikey = '65794a30655841694f694a4b563151694c434a68624763694f694a49557a49314e694a392e65794a7063334d694f694a7a644849756333526c6247786863694973496e4e3159694936496d39696153357a59584a6e623235705147396a63326b7559323875645773694c434a70595851694f6a45314d544d784f5441334e445573496d46315a434936496e4e30636935765a47456966512e2d4e4470356c64733266494f6d35584b4b7370394b48334f2d775542446f455248575f36467437477a3034'
-schema_headers = {'APIKey':apikey}
+APIKey = '65794a30655841694f694a4b563151694c434a68624763694f694a49557a49314e694a392e65794a7063334d694f694a7a644849756333526c6247786863694973496e4e3159694936496d39696153357a59584a6e623235705147396a63326b7559323875645773694c434a70595851694f6a45314d544d344f446b314d7a5173496d46315a434936496e4e30636935765a47456966512e78776b4d5031674575456853544b73757a5f3477706743613633766b4b5138476e45513969464d614b4e34'
+schema_headers = {'APIKey':APIKey}
 
 
 
@@ -222,7 +222,8 @@ def get_recodes_from_valueset_location(schema_headers, valueset_loc):
     return df_valueset['id'].tolist()
 
 def get_database_fields(schema_headers, database_id, df_schema = None, check_cache = False, cache_filename = '.\schema\schema.csv'):
-    '''Given a database ID, return the ids of the fields within that database
+    '''Given a database ID, return the ids of the fields within that database. Note that this function does not
+    return fields that are contained within folders withing the database, for example the geography fields.
     
     Args:
         schema_headers (dict): The headers of the request.
@@ -238,6 +239,7 @@ def get_database_fields(schema_headers, database_id, df_schema = None, check_cac
     if df_schema is None:
         df_schema = get_full_schema(schema_headers,check_cache = check_cache, schema_filename = cache_filename)
 
+    # Get fields beloning to parent
     fields_dict = df_schema.loc[ (df_schema['parent_id'] == database_id) & (df_schema['type'] == 'FIELD'), ['id', 'label']].set_index('label').to_dict()
 
     return fields_dict['id']
