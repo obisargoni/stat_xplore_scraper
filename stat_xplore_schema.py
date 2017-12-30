@@ -21,6 +21,10 @@ def get_full_schema(schema_headers, url = schema_url, types_to_include = ["FOLDE
 
     Kwargs:
         url (str): Defaults to the root schema folder: https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema
+        types_to_include (list of str): Defaults to ["FOLDER","DATABASE","MEASURE","FIELD"]. 
+            The schema element types to include in the schema dataframe
+        check_cache (bool): Default False. Set whether to check the cached schema csv for schema information
+        cache_filename (str): Default '.\schema\schema.csv'. The filename of the chached schema
     '''
 
     # Get chema info for the root folder
@@ -171,6 +175,9 @@ def geography_recodes_for_geog_folder_geog_level(schema_headers, database_id, ge
         geog_folder_label (str): Default 'Geography (residence-based)'. The geography folder label containing the geography recodes
         geog_field_label (str): Default 'National - Regional - LA - OAs'. The geography field label, eg 'National - Regional - LA - OAs'
         geog_level_label (str): Defaukt 'Local Authority'. The geographic level label to get recodes for (eg lcoal authority or LSOA)
+        df_schema (pandas DataFrame, None): Default None. The stat-xplore schema
+        check_cache (bool): Default '.\schema\schema.csv'. Default False. Set whether to check the cached schema csv for schema information
+        cache_filename (str): The filename of the chached schema
 
     Returns:
         dict: key is str id of the geography field. Value is list of str geography field values
@@ -231,9 +238,11 @@ def get_database_fields(schema_headers, database_id, df_schema = None, check_cac
 
     Kwargs:
         df_schema (pandas DataFrame, None): Default None. The stat-xplore schema
+        check_cache (bool): Default False. Set whether to check the cached schema csv for schema information
+        cache_filename (str): Default '.\schema\schema.csv'. The filename of the chached schema
 
     Returns:
-        dict: The field lbels as keys, the field ids as values
+        dict: The field labels as keys, the field ids as values
     '''
 
     if df_schema is None:
