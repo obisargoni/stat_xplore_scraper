@@ -43,6 +43,9 @@ def build_request_body(table_headers, schema_headers, measure_id, field_ids = No
 
     dimensions_values = get_dimensions_body(schema_headers, database_id, field_ids, df_schema = df_schema)
 
+    # Add in recode field id to the dimensions
+    dimensions_values = dimensions_values + [[i] for i in list(recodes_values.keys())]
+
     body = {'database':database_value,
             'measures':measures_values,
             'recodes': recodes_values,
