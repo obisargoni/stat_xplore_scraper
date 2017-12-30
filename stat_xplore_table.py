@@ -14,6 +14,23 @@ schema_headers = {'APIKey':APIKey}
 
 def build_request_body(table_headers, schema_headers, measure_id, field_ids = None, df_schema = None):
 def build_request_body(table_headers, schema_headers, measure_id, field_ids = None, df_schema = None, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority'):
+    '''For an input measure ID and field IDs as well as the labels for the geography folder, field and level to get data for 
+    build that dictionary of data to send to the Stat-Xplore table end point to request data.
+
+    Args:
+        table_headers (dict): The headers to uses for the request to the table endpoint of the Stat-Xplore API
+        schema_headers (dict): The headers to uses for the request to the schema endpoint of the Stat-Xplore API
+        measure_id (str): The id of the measure to request data for. This is the dataset, such as Attendence Allowance claimants, 
+            that data is returned for
+
+    Kwargs:
+        field_ids (list of str, None): Default None. The field IDs of the fields to in intersect they data by
+        df_schema (pandas DataFrame, None): Default to None. A DataFrame of the Stat-Xplore schema
+        geog_folder_label (str): Defaults to 'Geography (residence-based)'. The label of the geography folder to get geography recodes from
+        geog_field_label (str): Defaults tp 'National - Regional - LA - OAs'. The label of the geography field to get geography recodes from.
+        geog_level_label (str): Defaults to 'Local Authority'. The label of the level (ie LAs, LSOAs etc) to get recodes for
+
+    '''
 
     # Get database id
     database_id = 'str:database:' + measure_id.split(':')[-2]
@@ -74,6 +91,19 @@ def get_measures_request_body(measure_ids):
     return measure_ids
 
 def get_geography_recodes_request_body(schema_headers, database_id, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority', df_schema = None, check_cache = False, schema_filename = '.\schema\schema.csv'):
+    '''A wrapped function that gets the requested geography recodes and passes them to a functino that formats tha recodes into the
+    dictionary format required for requesting data.
+    
+    Args:
+        schema_headers (dict): The headers of the request
+        database_id (str): The ID of the database to get dimension fields for
+    
+    Kwargs:
+        geog_folder_label (str): Defaults to 'Geography (residence-based)'. The label of the geography folder to get geography recodes from
+        geog_field_label (str): Defaults tp 'National - Regional - LA - OAs'. The label of the geography field to get geography recodes from
+        geog_level_label (str): Defaults to 'Local Authority'. The label of the level (ie LAs, LSOAs etc) to get recodes for
+
+    '''
 
     # Get the recodes
     recodes_dict = stat_xplore_schema.geography_recodes_for_geog_folder_geog_level(schema_headers, database_id, geog_folder_label, geog_field_label, geog_level_label, df_schema, check_cache, schema_filename)
