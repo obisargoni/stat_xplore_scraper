@@ -68,13 +68,14 @@ def get_dimensions_body(schema_headers, database_id, field_ids, df_schema = None
 
     '''
 
+    all_field_ids_dict = stat_xplore_schema.get_database_fields(schema_headers, database_id, df_schema = df_schema)
+    all_field_ids = list(all_field_ids_dict.values())
+    
     if field_ids is None:
-        field_ids_dict = stat_xplore_schema.get_database_fields(schema_headers, database_id, df_schema = df_schema)
-        field_ids = list(field_ids_dict.values())
+        return all_field_ids
 
     field_ids = [field_ids] if isinstance(field_ids, str) else field_ids
-
-    dimensions_array = [[i] for i in field_ids]
+    dimensions_array = [[i] for i in field_ids if i in all_field_ids]
 
     return dimensions_array 
 
