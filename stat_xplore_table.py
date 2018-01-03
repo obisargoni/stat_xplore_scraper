@@ -85,7 +85,7 @@ def unpack_field_items(field_items, item_values_to_return = 'labels'):
     return item_values
 
 
-def get_stat_xplore_measure_data(table_headers, schema_headers, measure_id, field_ids = None, df_schema = None, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority'):
+def get_stat_xplore_measure_data(table_headers, schema_headers, measure_id, field_ids = None, fields_include_total = None, df_schema = None, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority'):
     '''For an input measure ID and field IDs as well as the labels for the geography folder, field and level to get data for 
     build that dictionary of data to send to the Stat-Xplore table end point to request data.
 
@@ -97,6 +97,8 @@ def get_stat_xplore_measure_data(table_headers, schema_headers, measure_id, fiel
 
     Kwargs:
         field_ids (list of str, None): Default None. The field IDs of the fields to in intersect they data by
+        fields_include_total (str or list of str): The field IDs of the fields which will include the total across all field values in the returned data.
+            This cannot be the date field.
         df_schema (pandas DataFrame, None): Default to None. A DataFrame of the Stat-Xplore schema
         geog_folder_label (str): Defaults to 'Geography (residence-based)'. The label of the geography folder to get geography recodes from
         geog_field_label (str): Defaults tp 'National - Regional - LA - OAs'. The label of the geography field to get geography recodes from.
@@ -109,7 +111,7 @@ def get_stat_xplore_measure_data(table_headers, schema_headers, measure_id, fiel
     '''
 
     # Build request body
-    body = build_request_body(table_headers, schema_headers, measure_id, field_ids = field_ids, df_schema = df_schema, geog_folder_label = geog_folder_label, geog_field_label = geog_field_label, geog_level_label = geog_level_label)
+    body = build_request_body(table_headers, schema_headers, measure_id, field_ids = field_ids, fields_include_total = fields_include_total, df_schema = df_schema, geog_folder_label = geog_folder_label, geog_field_label = geog_field_label, geog_level_label = geog_level_label)
 
     # Request data
     response_dict = request_table(table_headers, json.dumps(body))
@@ -131,7 +133,7 @@ def get_stat_xplore_measure_data(table_headers, schema_headers, measure_id, fiel
         return {'data':None, 'annotations':None}
 
 
-def build_request_body(table_headers, schema_headers, measure_id, field_ids = None, df_schema = None, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority'):
+def build_request_body(table_headers, schema_headers, measure_id, field_ids = None, fields_include_total = None, df_schema = None, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority'):
     '''For an input measure ID and field IDs as well as the labels for the geography folder, field and level to get data for 
     build that dictionary of data to send to the Stat-Xplore table end point to request data.
 
@@ -143,6 +145,8 @@ def build_request_body(table_headers, schema_headers, measure_id, field_ids = No
 
     Kwargs:
         field_ids (list of str, None): Default None. The field IDs of the fields to in intersect they data by
+        fields_include_total (str or list of str): The field IDs of the fields which will include the total across all field values in the returned data
+            This cannot be the date field.
         df_schema (pandas DataFrame, None): Default to None. A DataFrame of the Stat-Xplore schema
         geog_folder_label (str): Defaults to 'Geography (residence-based)'. The label of the geography folder to get geography recodes from
         geog_field_label (str): Defaults tp 'National - Regional - LA - OAs'. The label of the geography field to get geography recodes from.
@@ -164,8 +168,18 @@ def build_request_body(table_headers, schema_headers, measure_id, field_ids = No
 
     dimensions_values = get_dimensions_body(schema_headers, database_id, field_ids, df_schema = df_schema)
 
-    # Add in recode field id to the dimensions
+    # Add in geography recode field id to the dimensions
     dimensions_values = dimensions_values + [[i] for i in list(recodes_values.keys())]
+
+    # Add in the field totals to the recodes so that the returned data includes field totals (ie total for all genders)
+    if fields_include_total is not None:
+        fields_include_total = [fields_include_total] if isinstance(fields_include_total, str) else fields_include_total
+        # Ensure that existing recode items are not changed
+        # The dimension id is the element within the array
+        for field in fields_include_total:
+            if field in recodes_values.keys():
+                continue
+            recodes_values[field] = {'total':True}
 
     body = {'database':database_value,
             'measures':measures_values,
