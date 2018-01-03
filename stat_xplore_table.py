@@ -6,10 +6,6 @@ import os
 import stat_xplore_schema
 
 table_url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/table'
-APIKey = '65794a30655841694f694a4b563151694c434a68624763694f694a49557a49314e694a392e65794a7063334d694f694a7a644849756333526c6247786863694973496e4e3159694936496d39696153357a59584a6e623235705147396a63326b7559323875645773694c434a70595851694f6a45314d544d344f446b314d7a5173496d46315a434936496e4e30636935765a47456966512e78776b4d5031674575456853544b73757a5f3477706743613633766b4b5138476e45513969464d614b4e34'
-table_headers = {'APIKey':APIKey,
-                'Content-Type':'applciation/json'}
-schema_headers = {'APIKey':APIKey}
 
 def json_response_to_dataframe(dict_response):
     '''Take input sting of JSON formatted data returned by the Stat-Xplore API table end point and 
@@ -89,12 +85,11 @@ def unpack_field_items(field_items, item_values_to_return = 'labels'):
     return item_values
 
 
-def get_stat_xplore_measure_data(table_url, table_headers, schema_headers, measure_id, field_ids = None, df_schema = None, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority'):
+def get_stat_xplore_measure_data(table_headers, schema_headers, measure_id, field_ids = None, df_schema = None, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority'):
     '''For an input measure ID and field IDs as well as the labels for the geography folder, field and level to get data for 
     build that dictionary of data to send to the Stat-Xplore table end point to request data.
 
     Args:
-        table_url (str): The url of the table end point of the Stat-Xplore API 
         table_headers (dict): The headers to uses for the request to the table endpoint of the Stat-Xplore API
         schema_headers (dict): The headers to uses for the request to the schema endpoint of the Stat-Xplore API
         measure_id (str): The id of the measure to request data for. This is the dataset, such as Attendence Allowance claimants, 
@@ -107,13 +102,17 @@ def get_stat_xplore_measure_data(table_url, table_headers, schema_headers, measu
         geog_field_label (str): Defaults tp 'National - Regional - LA - OAs'. The label of the geography field to get geography recodes from.
         geog_level_label (str): Defaults to 'Local Authority'. The label of the level (ie LAs, LSOAs etc) to get recodes for
 
+    Returns:
+        dict: Dictionary with the following items: 'data' - a pandas Data Frame of the request data, or None if request was unsucessfull; 
+                'annotations' - A string of the annotations accoumpanying the data. Contains info on what the data show.
+
     '''
 
     # Build request body
     body = build_request_body(table_headers, schema_headers, measure_id, field_ids = field_ids, df_schema = df_schema, geog_folder_label = geog_folder_label, geog_field_label = geog_field_label, geog_level_label = geog_level_label)
 
     # Request data
-    response_dict = request_table(table_url, table_headers, json.dumps(body))
+    response_dict = request_table(table_headers, json.dumps(body))
 
     if response_dict['success'] == True:
         json_data = response_dict['response'].json()
@@ -121,9 +120,15 @@ def get_stat_xplore_measure_data(table_url, table_headers, schema_headers, measu
         # Format data into dataframe
         df_data = json_response_to_dataframe(json_data)
 
-        return df_data
+        # Get database annotations (footnaotes)
+        database_annotation_keys = json_data['database']['annotationKeys']
+        database_annotations = {}
+        for key in database_annotation_keys:
+            database_annotations[key] = json_data['annotationMap'][key]
+
+        return {'data': df_data, 'annotations':database_annotations}
     else:
-        return None
+        return {'data':None, 'annotations':None}
 
 
 def build_request_body(table_headers, schema_headers, measure_id, field_ids = None, df_schema = None, geog_folder_label = 'Geography (residence-based)', geog_field_label= 'National - Regional - LA - OAs', geog_level_label = 'Local Authority'):
@@ -142,6 +147,9 @@ def build_request_body(table_headers, schema_headers, measure_id, field_ids = No
         geog_folder_label (str): Defaults to 'Geography (residence-based)'. The label of the geography folder to get geography recodes from
         geog_field_label (str): Defaults tp 'National - Regional - LA - OAs'. The label of the geography field to get geography recodes from.
         geog_level_label (str): Defaults to 'Local Authority'. The label of the level (ie LAs, LSOAs etc) to get recodes for
+
+    Returns:
+        dict: Dictionary with keys 'database', 'measures', 'recodes', 'dimensions'. This dictionary is sent to the stat-xplore API when requesting data
 
     '''
 
@@ -295,14 +303,15 @@ def gen_xyz(x_max, y_max, z_max):
            for z in range(z_max):
                     yield x,y,z
 
-def request_table(url, table_headers, table_data):
+def request_table(table_headers, table_data):
     '''Send request for table to API. Check request was successful.
 
     Args:
         url (str): The url of the request.
         table_headers (dict): The headers of the request.
     '''
-    table_response = requests.post(url, headers = table_headers, data = table_data)
+    global table_url
+    table_response = requests.post(table_url, headers = table_headers, data = table_data)
 
     # Check that request was successful. If not print message and exit.
     if table_response.raise_for_status() is not None:
