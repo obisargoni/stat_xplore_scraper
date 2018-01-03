@@ -2,17 +2,9 @@ import requests
 import pandas as pd 
 import os
 
-
-
 schema_url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema'
 
-APIKey = '65794a30655841694f694a4b563151694c434a68624763694f694a49557a49314e694a392e65794a7063334d694f694a7a644849756333526c6247786863694973496e4e3159694936496d39696153357a59584a6e623235705147396a63326b7559323875645773694c434a70595851694f6a45314d544d344f446b314d7a5173496d46315a434936496e4e30636935765a47456966512e78776b4d5031674575456853544b73757a5f3477706743613633766b4b5138476e45513969464d614b4e34'
-schema_headers = {'APIKey':APIKey}
-
-
-
-
-def get_full_schema(schema_headers, url = schema_url, types_to_include = ["FOLDER","DATABASE","MEASURE","FIELD"], check_cache = False, schema_filename = '.\schema\schema.csv'):
+def get_full_schema(schema_headers, types_to_include = ["FOLDER","DATABASE","MEASURE","FIELD"], check_cache = False, schema_filename = '.\schema\schema.csv'):
     '''Get the schema information of all elements of the Stat-Xplore schema but sratting at the root 
     folder and iterating through the schema tree.
 
@@ -20,7 +12,6 @@ def get_full_schema(schema_headers, url = schema_url, types_to_include = ["FOLDE
         schema_headers (dict): The headers to use in the html request to the stat-xplore API.
 
     Kwargs:
-        url (str): Defaults to the root schema folder: https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema
         types_to_include (list of str): Defaults to ["FOLDER","DATABASE","MEASURE","FIELD"]. 
             The schema element types to include in the schema dataframe
         check_cache (bool): Default False. Set whether to check the cached schema csv for schema information
@@ -28,7 +19,7 @@ def get_full_schema(schema_headers, url = schema_url, types_to_include = ["FOLDE
     '''
 
     # Get chema info for the root folder
-    root_reponse = request_schema(url, schema_headers)
+    root_reponse = request_schema(schema_headers)
     if root_reponse['success'] == False:
         return
     root_json = root_reponse['response'].json()
@@ -128,7 +119,7 @@ def get_children_schema_of_url(url, schema_headers, check_cache = False, cache_f
     # make request to the API to get the schema details
     if len(df_schema) == 0:
 
-        schema_response = request_schema(url, schema_headers)
+        schema_response = request_schema(schema_headers, url = url)
         if schema_response['success'] == False:
             return output
 
@@ -142,7 +133,7 @@ def get_children_schema_of_url(url, schema_headers, check_cache = False, cache_f
 
     return {'success':True,'schema':df_schema, 'from_cache':False}
 
-def request_schema(url, schema_headers):
+def request_schema(schema_headers, url = schema_url):
     '''Send request for schema to API. Check request was successful.
 
     Args:
@@ -185,7 +176,7 @@ def geography_recodes_for_geog_folder_geog_level(schema_headers, database_id, ge
 
     # Check if schema was passed in. If not get schema
     if df_schema is None:
-        df_schema = get_full_schema(schema_headers,check_cache = check_cache, schema_filename = schema_filename)
+        df_schema = get_full_schema(schema_headers, check_cache = check_cache, schema_filename = schema_filename)
 
     # Get the id of the geog folder requested
     geog_folder_id = df_schema.loc[(df_schema['parent_id'] == database_id) & (df_schema['label'] == geog_folder_label), 'id'].values[0]
@@ -217,7 +208,7 @@ def get_recodes_from_valueset_location(schema_headers, valueset_loc):
     '''
 
 
-    valueset_response = request_schema(valueset_loc, schema_headers)
+    valueset_response = request_schema(schema_headers, url = valueset_loc)
 
     if valueset_response['success'] == False:
         return None
