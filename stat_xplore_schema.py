@@ -42,8 +42,8 @@ def get_full_schema(schema_headers, types_to_include = ["FOLDER","DATABASE","MEA
 
         df_full_schema = pd.concat([df_full_schema, new_schema], join = 'outer')
 
-        # Save the schema as we go
-        df_full_schema.to_csv(schema_filename, index=False)
+    # Save the schema at the end
+    df_full_schema.to_csv(schema_filename, index=False, encoding = 'utf-8')
 
     return df_full_schema
 
@@ -101,7 +101,7 @@ def get_children_schema_of_url(url, schema_headers, check_cache = False, cache_f
     if (check_cache == True) & (os.path.exists(cache_filename) == True):
 
         try:
-            df_full_schema = pd.read_csv(cache_filename)
+            df_full_schema = pd.read_csv(cache_filename, encoding = 'utf-8')
             parent_id = df_full_schema.loc[ df_full_schema['location'] == url, 'id'].values[0]
             df_schema = df_full_schema.loc[df_full_schema['parent_id'] == parent_id]
             assert len(df_schema) != 0
