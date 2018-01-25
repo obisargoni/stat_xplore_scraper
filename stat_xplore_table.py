@@ -7,9 +7,6 @@ import stat_xplore_schema
 
 table_url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/table'
 
-# To do
-# - what time point is returned by default?
-# - Is a function to convert from LA names to LA codes needed
 
 def json_response_to_dataframe(dict_response):
     '''Take input sting of JSON formatted data returned by the Stat-Xplore API table end point and 
