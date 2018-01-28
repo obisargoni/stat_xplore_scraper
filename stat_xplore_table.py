@@ -10,7 +10,7 @@ table_url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/table'
 
 def json_response_to_dataframe(dict_response):
     '''Take input sting of JSON formatted data returned by the Stat-Xplore API table end point and 
-    unpack it into a pandas dataframe. Data Frame is in a 'long' format with a column for each field 
+    unpack it into a pandas dataframe. Data Frame is in a 'long' format with a column for each field (uri and label)
     and a column for the data value. Currently assumes that the json data contains three fields and therfore
     a 3d data array.
 
@@ -21,18 +21,26 @@ def json_response_to_dataframe(dict_response):
         pandas DataFrame: The Stat-Xplore API data formatted as a DataFrame.
     '''
 
-    # Unpack field labels and the labels of items within each field.
-    field_items = []
-    field_headers = []
+    # Unpack field labels and uris (IDs) plus the labels and uris (IDs) of items within each field.
+    field_items = { 'labels':[],
+                    'uris':[]}
+    field_headers = {   'labels':[],
+                        'uris':[]}
     for field in dict_response['fields']:
-        field_items.append(unpack_field_items(field['items'], item_values_to_return = 'labels'))
-        field_headers.append(field['label'])
+        # Unpack the labels
+        field_items['labels'].append(unpack_field_items(field['items'], item_values_to_return = 'labels'))
+        field_headers['labels'].append(field['label'])
+
+        # Unpack the uris
+        field_items['uris'].append(unpack_field_items(field['items'], item_values_to_return = 'uris'))
+        field_headers['uris'].append(field['uri'])
 
     measure_uri = dict_response['measures'][0]['uri'] 
     cubes_values = dict_response['cubes'][ measure_uri]['values']
 
-    if len(field_items) == 3:
-        dictData = unpack_cube_data(*field_items,*field_headers, cubes_values)
+    # unpack the data, using the field item values' IDs to index values
+    if len(field_items['labels']) == 3:
+        dictData = unpack_cube_data(*field_items['uris'],*field_headers['uris'], cubes_values)
     df = pd.DataFrame(dictData)
 
     return df
