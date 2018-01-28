@@ -1,6 +1,7 @@
 # Functions to interact with the 'table' end point of the Stat-Xplore API
 import json
 import pandas as pd 
+import numpy as np 
 import requests
 import os
 import stat_xplore_schema
@@ -36,14 +37,10 @@ def json_response_to_dataframe(dict_response):
         field_headers['uris'].append(field['uri'])
 
     measure_uri = dict_response['measures'][0]['uri'] 
-    cubes_values = dict_response['cubes'][ measure_uri]['values']
     cubes_array = np.array(dict_response['cubes'][ measure_uri]['values'])
 
 
     # unpack the data, using the field item values' IDs to index values
-    if len(field_items['labels']) == 3:
-        dictData = unpack_cube_data(*field_items['uris'],*field_headers['uris'], cubes_values)
-    df = pd.DataFrame(dictData)
     dict_data = unpack_cube_data(field_items['uris'],field_headers['uris'], cubes_array)
     
     df = pd.DataFrame(dict_data)
