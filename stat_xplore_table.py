@@ -43,7 +43,22 @@ def json_response_to_dataframe(dict_response):
         dictData = unpack_cube_data(*field_items['uris'],*field_headers['uris'], cubes_values)
     df = pd.DataFrame(dictData)
 
-    return df
+    # Add in the labels
+    final_headers = []
+    for i in range(len(field_headers['uris'])):
+        # Form lookup dictionary from uri to label
+        dict_field_lookup = dict(zip(field_items['uris'][i], field_items['labels'][i]))
+
+        # Create a new labels column by replacing the uris with their labels
+        df[field_headers['labels'][i]] = df[field_headers['uris'][i]].replace(dict_field_lookup)
+
+        final_headers.append(field_headers['uris'][i])
+        final_headers.append(field_headers['labels'][i])
+    
+    # Add the value header
+    final_headers.append('value')
+
+    return df.reindex(columns = final_headers)
 
 def unpack_cube_data(labelsX, labelsY, labelsZ, headerX, headerY, headerZ, cubes_values):
     '''For input lists of the field labels and the 3d array of data, unpak the data assigning the coorect labels to each value.
