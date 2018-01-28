@@ -37,11 +37,16 @@ def json_response_to_dataframe(dict_response):
 
     measure_uri = dict_response['measures'][0]['uri'] 
     cubes_values = dict_response['cubes'][ measure_uri]['values']
+    cubes_array = np.array(dict_response['cubes'][ measure_uri]['values'])
+
 
     # unpack the data, using the field item values' IDs to index values
     if len(field_items['labels']) == 3:
         dictData = unpack_cube_data(*field_items['uris'],*field_headers['uris'], cubes_values)
     df = pd.DataFrame(dictData)
+    dict_data = unpack_cube_data(field_items['uris'],field_headers['uris'], cubes_array)
+    
+    df = pd.DataFrame(dict_data)
 
     # Add in the labels
     final_headers = []
@@ -60,7 +65,7 @@ def json_response_to_dataframe(dict_response):
 
     return df.reindex(columns = final_headers)
 
-def unpack_cube_data(labelsX, labelsY, labelsZ, headerX, headerY, headerZ, cubes_values):
+def unpack_cube_data(labels, headers, cubes_array):
     '''For input lists of the field labels and the 3d array of data, unpak the data assigning the coorect labels to each value.
     Data is unpacked into a dictionary of tuples which can be easily parsed into a pandas Data Frame.
 
@@ -71,19 +76,45 @@ def unpack_cube_data(labelsX, labelsY, labelsZ, headerX, headerY, headerZ, cubes
         headerX (str): The field label for the X field labels
         headerY (str): The field label for the Y field labels
         headerZ (str): The field label for the Z field labels
-        cubes_values (3d array): The data values to unpack
+        cubes_array (multi-dim numpy array): The data values to unpack
 
     Returns: 
         dict: Dictionary of the labels and the data values.
     '''
-    xyz = gen_xyz(len(labelsX), len(labelsY), len(labelsZ))
-    dictData = {headerX:[], headerY:[], headerZ:[], 'value':[]}
-    for x,y,z in xyz:
-        dictData[headerX].append(labelsX[x])
-        dictData[headerY].append(labelsY[y])
-        dictData[headerZ].append(labelsZ[z])
-        dictData['value'].append(cubes_values[x][y][z])
-    return dictData
+    dict_data = {}
+    for header in headers:
+        dict_data[header] = []
+    dict_data['value'] = []
+
+    cube_shape = cubes_array.shape  
+
+    # Unpacking 1d
+    if len(cube_shape) == 1:
+        assert len(labels[0] == len(cubes_array[:]))
+        dict_data[headers[0]] += (labels[0])
+        dict_data['value'] += (list(cubes_array[:]))
+    # Unpacking 2d data
+    elif len(cube_shape) == 2:
+        assert len(labels[0]) == cube_shape[0]
+        assert len(labels[1]) == cube_shape[1]
+        for x in range(cube_shape[0]):
+            assert len(labels[1][:]) == len(cubes_array[x,:])
+            dict_data[headers[0]] += ([labels[0][x]]*cube_shape[1])
+            dict_data[headers[1]] += (labels[1][:])
+            dict_data['value'] += (list(cubes_array[x,:]))
+    # Unpacking 3d data
+    elif len(cube_shape) == 3:
+        assert len(labels[0]) == cube_shape[0]
+        assert len(labels[1]) == cube_shape[1]
+        assert len(labels[2]) == cube_shape[2]
+        for x in range(cube_shape[0]):
+            for y in range(cube_shape[1]):
+                assert len(labels[2][:]) == len(cubes_array[x,y,:])
+                dict_data[headers[0]] += ([labels[0][x]]*cube_shape[2])
+                dict_data[headers[1]] += ([labels[1][y]]*cube_shape[2])
+                dict_data[headers[2]] += (labels[2][:])
+                dict_data['value'] += list(cubes_array[x,y,:])
+    return dict_data
 
 # Could change this function to unpack both ids and labels, return multidimensional array
 def unpack_field_items(field_items, item_values_to_return = 'labels'):
