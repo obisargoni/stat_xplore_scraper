@@ -62,7 +62,7 @@ def unpack_cube_data(labelsX, labelsY, labelsZ, headerX, headerY, headerZ, cubes
         dictData['value'].append(cubes_values[x][y][z])
     return dictData
 
-
+# Could change this function to unpack both ids and labels, return multidimensional array
 def unpack_field_items(field_items, item_values_to_return = 'labels'):
     '''The Stat-Xplore API returns fie;d values as an array of arrays, ie [ [value1], [value2], ...].
     This function unpacks field values into a 1d array so that they can be parsed into a pandas DataFrame.
@@ -81,8 +81,13 @@ def unpack_field_items(field_items, item_values_to_return = 'labels'):
     if item_values_to_return not in ['labels','uris']:
         print("unpack_field_items: Failed to unpack items. Unrecognised value type to return. Must be either 'labels' or 'uris'")
 
+    # Get the label or uri from each field item value
+    # Where field items are the 'Total' for all field values, a uri isn't given. Use the label in this instance
     for item in field_items:
-        item_values.append(item[item_values_to_return][0])
+        if item['type'] == 'Total':
+            item_values.append(item['labels'][0])
+        else:
+            item_values.append(item[item_values_to_return][0])
     return item_values
 
 
