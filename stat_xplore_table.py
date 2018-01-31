@@ -11,9 +11,8 @@ table_url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/table'
 
 def json_response_to_dataframe(dict_response):
     '''Take input sting of JSON formatted data returned by the Stat-Xplore API table end point and 
-    unpack it into a pandas dataframe. Data Frame is in a 'long' format with a column for each field (uri and label)
-    and a column for the data value. Currently assumes that the json data contains three fields and therfore
-    a 3d data array.
+    unpack it into a pandas dataframe. The returned dataframe is in a 'long' format with a column for each field (uri and label)
+    and a column for the data value.
 
     Args:
         json_response (dict): Dictionary of data returned by the Stat-Xpore API table end point
@@ -39,7 +38,6 @@ def json_response_to_dataframe(dict_response):
     measure_uri = dict_response['measures'][0]['uri'] 
     cubes_array = np.array(dict_response['cubes'][ measure_uri]['values'])
 
-
     # unpack the data, using the field item values' IDs to index values
     dict_data = unpack_cube_data(field_items['uris'],field_headers['uris'], cubes_array)
     
@@ -54,6 +52,7 @@ def json_response_to_dataframe(dict_response):
         # Create a new labels column by replacing the uris with their labels
         df[field_headers['labels'][i]] = df[field_headers['uris'][i]].replace(dict_field_lookup)
 
+        # Add each header to list so that they are ordered by field type
         final_headers.append(field_headers['uris'][i])
         final_headers.append(field_headers['labels'][i])
     
@@ -63,16 +62,13 @@ def json_response_to_dataframe(dict_response):
     return df.reindex(columns = final_headers)
 
 def unpack_cube_data(labels, headers, cubes_array):
-    '''For input lists of the field labels and the 3d array of data, unpak the data assigning the coorect labels to each value.
-    Data is unpacked into a dictionary of tuples which can be easily parsed into a pandas Data Frame.
+    '''For input lists of the field labels and the array of data, unpak the data assigning the coorect labels to each value.
+    Function can unpack 1d,2d and 3d data arrays. THis covers all possible dimensions returned by the stat-xplore API.
+    Data is unpacked into a dictionary of tuples.
 
     Args:
-        labelsX (str): The labels for the first index of the 3d data array
-        labelsY (str): The labels for the second index of the 3d data array
-        labelsZ (str): The labels for the third index of the 3d data array
-        headerX (str): The field label for the X field labels
-        headerY (str): The field label for the Y field labels
-        headerZ (str): The field label for the Z field labels
+        labels (array of str): A 2d array containing lists of the labels to index data values with
+        headers (list of str): A list of the headers for the fields data is indexed by
         cubes_array (multi-dim numpy array): The data values to unpack
 
     Returns: 
