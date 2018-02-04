@@ -195,25 +195,36 @@ def geography_recodes_for_geog_folder_geog_level(schema_headers, database_id, ge
     return {geog_field_id:geog_recodes}
 
 
-def get_recodes_from_valueset_location(schema_headers, valueset_loc):
-    '''Query the API schema to get the set of recodes that are located within the input valueset
+def get_recodes_from_valueset_location_single_page(schema_headers, valueset_url):
+    '''Query the API schema to get the set of recodes that are located within the input valueset url.
 
     Args:
         schema_headers (dict): The headers of the request.
-        valueset_loc (str): Localtion of the valueset to return recodes from
+        valueset_url (str): Localtion of the valueset to return recodes from
 
     Returns:
-        recodes (dict): recodes dictionary with key being the valueset id of the recodes and the item 
-                        being a list of recodes
+        dict: Keys: 'recodes' - list of string recode IDs, 'next_page_url' - the url of the next page. None if there isn't one.
     '''
+    # initialise next page url
+    next_page_url = None
 
+    # request the valueset json
+    dict_valueset_response = request_schema(schema_headers, url = valueset_url)
 
-    valueset_response = request_schema(schema_headers, url = valueset_loc)
-
-    if valueset_response['success'] == False:
+    if dict_valueset_response['success'] == False:
         return None
 
-    valueset_json = valueset_response['response'].json()
+    # unpack the json
+    valueset_json = dict_valueset_response['response'].json()
+    
+    # get the recode IDs from the children items in the json data
+    recodes = [i['id'] for i in valueset_json['children']]
+
+    # check for multiple pages of recodes. if there are multiple pages scrape each of these
+    if 'link' in dict_valueset_response['response'].headers:
+        next_page_url = get_next_page_url(dict_valueset_response['response'].headers)
+
+    return {'recodes':recodes, 'next_page_url':next_page_url}
 def get_next_page_url(dict_response_headers, link_key = 'link'):
     '''From the repsponse object of a schema requests, get the link to the next page of the schema
     folder contents. Useful when querying the schema for recodes as a maximum of 100 recodes are displayed 
