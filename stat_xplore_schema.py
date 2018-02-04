@@ -1,6 +1,7 @@
 import requests
 import pandas as pd 
 import os
+import re
 
 schema_url = 'https://stat-xplore.dwp.gov.uk/webapi/rest/v1/schema'
 
@@ -190,7 +191,7 @@ def geography_recodes_for_geog_folder_geog_level(schema_headers, database_id, ge
 
 
     # Call function to get recodes given a valueset location
-    geog_recodes = get_recodes_from_valueset_location(schema_headers, geog_field_valueset_loc)
+    geog_recodes = get_recodes_from_valueset_location_all_pages(schema_headers, geog_field_valueset_loc)
 
     return {geog_field_id:geog_recodes}
 
@@ -225,6 +226,29 @@ def get_recodes_from_valueset_location_single_page(schema_headers, valueset_url)
         next_page_url = get_next_page_url(dict_valueset_response['response'].headers)
 
     return {'recodes':recodes, 'next_page_url':next_page_url}
+
+def get_recodes_from_valueset_location_all_pages(schema_headers, valueset_first_page_url):
+    '''Scrape recodes from multiple pages of the API. Scrape the recode IDs from the first page of the valueset.
+    Check for multiple pages and scrape the recode IDs from themas well.
+
+    Args:
+        schema_headers (dict): The headers of the request.
+        valueset_first_page_url (str): Localtion of the valueset first page to return recodes from
+
+    Returns:
+        list of str: List of all recode IDs
+
+    '''
+
+    all_recodes = []
+    next_page_url = valueset_first_page_url
+    while next_page_url is not None:
+        dict_get_recodes = get_recodes_from_valueset_location_single_page(schema_headers, next_page_url)
+        all_recodes += dict_get_recodes['recodes']
+        next_page_url = dict_get_recodes['next_page_url']
+    return all_recodes
+
+
 def get_next_page_url(dict_response_headers, link_key = 'link'):
     '''From the repsponse object of a schema requests, get the link to the next page of the schema
     folder contents. Useful when querying the schema for recodes as a maximum of 100 recodes are displayed 
@@ -255,9 +279,9 @@ def get_next_page_url(dict_response_headers, link_key = 'link'):
     else:
         return regex_get_link.search(link_text).groups()[1]
 
-    df_valueset = pd.DataFrame(valueset_json['children'])
 
-    return df_valueset['id'].tolist()
+
+
 
 def get_database_fields(schema_headers, database_id, df_schema = None, check_cache = False, cache_filename = 'schema.csv'):
     '''Given a database ID, return the ids of the fields within that database. Note that this function does not
