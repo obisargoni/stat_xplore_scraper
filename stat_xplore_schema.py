@@ -214,6 +214,35 @@ def get_recodes_from_valueset_location(schema_headers, valueset_loc):
         return None
 
     valueset_json = valueset_response['response'].json()
+def get_next_page_url(dict_response_headers, link_key = 'link'):
+    '''From the repsponse object of a schema requests, get the link to the next page of the schema
+    folder contents. Useful when querying the schema for recodes as a maximum of 100 recodes are displayed 
+    per page.
+
+    Args:
+        schema_response (response object): The response object received from the schema.
+
+    Kwargs:
+        link_key (str): The header key that the link to the next page is stored under.
+    '''
+    # Define regexes to check that link goes to next page and to get the link
+    regex_check_next = re.compile(r'(; rel=")(next)(")')
+    regex_get_link = re.compile(r'(^<)(.*)(>)')
+    
+
+    # Get the link
+    try:
+        link_text = dict_response_headers[link_key]
+    except KeyError as err:
+        print("stat_xplore_schema.get_next_page_url(). Failed to get link text using header key: {}".format(str(link_key)))
+        return
+    
+
+    # check that the link goes to the next page, if so return the url string
+    if regex_check_next.search(link_text) is None:
+        return
+    else:
+        return regex_get_link.search(link_text).groups()[1]
 
     df_valueset = pd.DataFrame(valueset_json['children'])
 
